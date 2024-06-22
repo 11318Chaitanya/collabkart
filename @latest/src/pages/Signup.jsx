@@ -1,34 +1,46 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Signup() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // const [image, setImage] = useState([]);
+  const [files, setFiles] = useState([]);
+
+  const inputFileRef = useRef(null);
 
   const handleChange = (e) => {
-    if (e.target.id === "screenshotsOfInstagramLink") {
-      const files = e.target.files;
-      const imgArr = [];
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => imgArr.push(reader.result);
-      });
-      setImage((prev) => [...prev, ...imgArr]);
+    if (e.target.id === "images") {
+
+      const newFiles = Array.from(e.target.files);
+      setFiles(newFiles);
+
       setFormData({
         ...formData,
-        [e.target.id]: imgArr,
+        [e.target.id]: newFiles,
       });
+
     } else {
       setFormData({
         ...formData,
         [e.target.id]: e.target.value,
       });
-      console.log(formData);
     }
   };
+
+  const handleUploadButtonClick = (e)=>{
+    inputFileRef.current.click();
+  }
+
+  const displayFilesCount = () =>{
+    if(files.length === 0){
+      return "Upload Files";
+    }else if(files.length === 1){
+      return '1 File Selected';
+    }else{
+      return `${files.length} Files Selected`;
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,14 +107,18 @@ export default function Signup() {
           className="p-3 rounded-lg bg-slate-100"
           onChange={handleChange}
         ></input>
+
+        <input type="button"  className="p-3 rounded-lg ml-0 bg-slate-500 text-white" onClick={handleUploadButtonClick} value={displayFilesCount()}/>
+        
         <input
           type="file"
           id="images"
           placeholder="instagram link"
-          className="p-3 rounded-xl ml-0"
+          className="p-3 rounded-xl ml-0 hidden"
           multiple
           accept="image/*"
-          onchange={handleChange}
+          ref = {inputFileRef}
+          onChange={handleChange}
         ></input>
 
         <button
